@@ -3,8 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>垃圾分类小游戏</title>
+<title>垃圾分分乐</title>
 <style>
+    /* 防止文字选中和去除点击高亮 */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 当前选择区域样式 */
+#current-selection {
+  background: white;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#current-selection-text {
+  font-weight: bold;
+  color: #00B578;
+}
+
+/* 反馈提示样式 */
+.feedback {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 20px 40px;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  z-index: 100;
+  display: none;
+}
+
+/* 选中垃圾项的样式 */
+.trash-label.selected {
+  background: #00B578;
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(0,181,120,0.5);
+}
+
+/* 垃圾桶悬停效果 */
+.bin:hover, .bin.active {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+    .invite-btn {
+        display: block;
+        margin: 20px auto;
+        background-color: #00B578;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+    }
     .game-icon {
     width: 100px;       /* 宽度 */
     height: 100px;      /* 高度 */
@@ -93,15 +161,17 @@
 
 <div id="score">本轮积分：0</div>
 <div id="count">分类正确：0件</div>
-
-<div id="trash-items"></div>
+<!-- 在分数显示和垃圾项之间添加这个 -->
+<div id="current-selection">
+  <span id="current-selection-text">请选择要分类的垃圾</span>
+</div>
 
 <div class="bin-container">
     <div class="bin kitchen" data-type="kitchen">厨余垃圾
         <img src="图片/绿.PNG" alt="垃圾桶" class="game-icon">
     </div>
     <div class="bin recycle" data-type="recycle">可回收物
-        <img src="图片/绿.PNG" alt="垃圾桶" class="game-icon">
+        <img src="图片/蓝.PNG" alt="垃圾桶" class="game-icon">
     </div>
     <div class="bin other" data-type="other">其他垃圾
         <img src="图片/橙.PNG" alt="垃圾桶" class="game-icon">
@@ -113,56 +183,107 @@
        
 </div>
 
+<!-- 在垃圾桶之后添加反馈提示 -->
+<div class="feedback" id="feedback">分类正确！+10分</div>
+<div id="trash-items"></div>
+
 <script>
 let score = 0;
 let correctCount = 0;
+let selectedTrash = null;
 
 const trashList = [
-    { name: "鱼骨", type: "kitchen" },
-    { name: "苹果核", type: "kitchen" },
-    { name: "易拉罐", type: "recycle" },
-    { name: "纸箱", type: "recycle" },
-    { name: "卫生纸", type: "other" },
-    { name: "塑料袋", type: "other" },
-    { name: "废电池", type: "hazard" },
-    { name: "过期药品", type: "hazard" }
+  { name: "鱼骨", type: "kitchen" },
+  { name: "苹果核", type: "kitchen" },
+  { name: "易拉罐", type: "recycle" },
+  { name: "纸箱", type: "recycle" },
+  { name: "卫生纸", type: "other" },
+  { name: "塑料袋", type: "other" },
+  { name: "废电池", type: "hazard" },
+  { name: "过期药品", type: "hazard" }
 ];
 
 function renderTrashItems() {
-    const container = document.getElementById("trash-items");
-    container.innerHTML = "";
-    trashList.forEach((item, index) => {
-        let div = document.createElement("div");
-        div.className = "trash-label";
-        div.draggable = true;
-        div.innerText = item.name;
-        div.dataset.type = item.type;
-        div.dataset.index = index;
-        div.addEventListener("dragstart", e => {
-            e.dataTransfer.setData("index", index);
-        });
-        container.appendChild(div);
+  const container = document.getElementById("trash-items");
+  container.innerHTML = "";
+  
+  trashList.forEach((item, index) => {
+    let div = document.createElement("div");
+    div.className = "trash-label";
+    div.innerText = item.name;
+    div.dataset.index = index;
+    
+    div.addEventListener("click", () => {
+      // 移除之前选中的样式
+      document.querySelectorAll(".trash-label").forEach(el => {
+        el.classList.remove("selected");
+      });
+      
+      // 设置当前选择
+      div.classList.add("selected");
+      selectedTrash = index;
+      
+      // 更新当前选择显示
+      document.getElementById("current-selection-text").textContent = `已选择: ${item.name}`;
     });
+    
+    container.appendChild(div);
+  });
 }
 
-document.querySelectorAll(".bin").forEach(bin => {
-    bin.addEventListener("dragover", e => e.preventDefault());
-    bin.addEventListener("drop", e => {
-        let index = e.dataTransfer.getData("index");
-        let item = trashList[index];
-        if (item && item.type === bin.dataset.type) {
-            score += 10;
-            correctCount++;
-            document.getElementById("score").innerText = "本轮积分：" + score;
-            document.getElementById("count").innerText = "分类正确：" + correctCount + "件";
-        }
-        trashList.splice(index, 1);
+function setupBins() {
+  document.querySelectorAll(".bin").forEach(bin => {
+    bin.addEventListener("click", () => {
+      if (selectedTrash === null) {
+        showFeedback("请先选择垃圾");
+        return;
+      }
+      
+      const item = trashList[selectedTrash];
+      const isCorrect = (item.type === bin.dataset.type);
+      
+      if (isCorrect) {
+        score += 10;
+        correctCount++;
+        document.getElementById("score").innerText = "本轮积分：" + score;
+        document.getElementById("count").innerText = "分类正确：" + correctCount + "件";
+        showFeedback("分类正确！+10分");
+      } else {
+        showFeedback("分类错误，请重试");
+      }
+      
+      // 移除已分类的垃圾项
+      trashList.splice(selectedTrash, 1);
+      selectedTrash = null;
+      
+      // 更新当前选择显示
+      document.getElementById("current-selection-text").textContent = "请选择要分类的垃圾";
+      
+      // 重新渲染垃圾列表
+      setTimeout(() => {
         renderTrashItems();
+        if (trashList.length === 0) {
+          showFeedback("游戏完成！最终得分: " + score);
+        }
+      }, 800);
     });
-});
+  });
+}
 
+function showFeedback(message) {
+  const feedback = document.getElementById("feedback");
+  feedback.textContent = message;
+  feedback.style.display = "block";
+  
+  setTimeout(() => {
+    feedback.style.display = "none";
+  }, 1500);
+}
+
+// 初始化游戏
 renderTrashItems();
+setupBins();
 </script>
-
+<button class="invite-btn">这题不会？问问好友>></button>
 </body>
 </html>
