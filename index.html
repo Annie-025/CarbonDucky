@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>导航页</title>
+<style>
+    .checkin-card {
+  background: #ffffff;
+  border-radius: 16px; /* 圆角矩形 */
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  max-width: 360px;
+  margin: 20px auto;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.checkin-card h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  color: #333;
+}
+
+.checkin-card p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+.checkin-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.checkin-item {
+  width: 50px;
+  height: 70px;
+  border-radius: 12px;
+  background: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkin-item:hover {
+  background: #e6f7e6;
+}
+
+.checkin-item .icon {
+  width: 24px;
+  height: 24px;
+  background-image: url('images-2.png'); /* 四叶草图标 */
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-bottom: 4px;
+}
+
+/* 已签到 */
+.checkin-item.signed {
+  background: #e6f7e6;
+  color: #2e8b57;
+}
+
+/* 补签 */
+.checkin-item.missed {
+  background: #fff5e6;
+  color: #ff9800;
+}
+
+    .container {
+    width: 90%; /* 让它随屏幕宽度变化 */
+    margin: auto;
+}
+
+img {
+    max-width: 100%; /* 图片不会超出容器 */
+    height: auto;    /* 按比例缩放 */
+}
+
+/* 针对小屏幕优化 */
+@media (max-width: 480px) {
+    .rank-avatar {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+    body {
+        font-family: "PingFang SC",-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+        margin: 0;
+        background-color: #f6f8f6;
+        color: #333;
+    }
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background-color: white;
+    }
+    header .user-info {
+        display: flex;
+        align-items: center;
+    }
+    header img.avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 8px;
+        border: 2px solid #00B578;
+    }
+    header .username {
+        font-size: 16px;
+        font-weight: 600;
+    }
+    header .icon {
+        font-size: 20px;
+        color: #00B578;
+    }
+
+    /* 签到卡 */
+    .sign-in-card {
+        background-color: white;
+        padding: 16px;
+        margin: 12px;
+        border-radius: 12px;
+    }
+    .sign-in-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    .sign-in-progress {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* 今日积分卡 */
+    .score-card {
+        background: linear-gradient(135deg, #00B578, #00C98B);
+        border-radius: 12px;
+        margin: 12px;
+        padding: 20px;
+        color: white;
+        text-align: center;
+    }
+    .score-card h2 {
+        font-size: 36px;
+        margin: 8px 0;
+    }
+    .share-btn {
+        background-color: rgba(255,255,255,0.2);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+    }
+
+    /* 分类按钮区 */
+    .category-buttons {
+        display: flex;
+        justify-content: center;
+        margin: 12px;
+    }
+    .category-buttons button {
+        border: none;
+        background-color: #E6F7EC;
+        color: #00B578;
+        padding: 6px 12px;
+        border-radius: 20px;
+        margin: 0 4px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    /* 游戏卡片 */
+    .game-card {
+        background-color: white;
+        margin: 12px;
+        padding: 16px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .game-info {
+        display: flex;
+        align-items: center;
+    }
+    .game-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 12px;
+    }
+    .start-btn {
+        background-color: #E6F7EC;
+        color: #00B578;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    /* 邀请好友按钮 */
+    .invite-btn {
+        display: block;
+        margin: 20px auto;
+        background-color: #00B578;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    /* 底部导航 */
+    nav {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        display: flex;
+        background-color: white;
+        border-top: 1px solid #ddd;
+    }
+    nav button {
+        flex: 1;
+        border: none;
+        background: none;
+        padding: 10px;
+        font-size: 12px;
+        color: #666;
+    }
+    nav button.active {
+        color: #00B578;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="user-info">
+        <img src="图片/头像.jpg" alt="头像" class="avatar">
+        <div>
+            <div class="username">欢迎您，碳索鸭1924</div>
+        </div>
+    </div>
+    <div class="icon">🔔</div>
+</header>
+
+<div class="checkin-card">
+  <h3>每日签到</h3>
+  <p>已连续签到 <span id="days">1</span> 天</p>
+  <div class="checkin-list">
+    <!-- 每个格子代表一天 -->
+    <div class="checkin-item signed">
+      <div class="icon"></div>
+      <span>已签</span>
+    </div>
+    <div class="checkin-item missed" onclick="makeUp(2)">
+      <div class="icon"></div>
+      <span>补签</span>
+    </div>
+    <div class="checkin-item" onclick="signToday(3)">
+      <div class="icon"></div>
+      <span>签到</span>
+    </div>
+    <div class="checkin-item">
+      <div class="icon"></div>
+      <span>签到</span>
+    </div>
+    <div class="checkin-item">
+      <div class="icon"></div>
+      <span>签到</span>
+    </div>
+  </div>
+</div>
+
+<div class="score-card">
+    <div>您今天已获得积分</div>
+    <h2>100</h2>
+    <div class="share-btn">去碳友圈分享</div>
+</div>
+
+<div class="category-buttons">
+    <button>绿色生活</button>
+    <button>小游戏</button>
+    <button>绿色资讯</button>
+</div>
+
+<div class="game-card">
+    <div class="game-info">
+        <img src="图片/bin-icon.png" alt="垃圾桶" class="game-icon">
+        <div>
+            <div>垃圾分类乐</div>
+            <div style="font-size: 12px; color: #888;">9位好友在玩</div>
+        </div>
+    </div>
+    <button class="start-btn" onclick="location.href='garbage.html'">开始游戏</button>
+</div>
+
+<div class="game-card">
+    <div class="game-info">
+        <img src="图片/quiz-icon.png" alt="问答" class="game-icon">
+        <div>
+            <div>知识竞答</div>
+            <div style="font-size: 12px; color: #888;">7位好友在玩</div>
+        </div>
+    </div>
+    <button class="start-btn" onclick="location.href='quiz.html'">开始游戏</button>
+</div>
+
+<button class="invite-btn">邀请好友一起玩</button>
+
+<nav>
+    <button class="active">🏠 首页</button>
+    <button>🛒 商城</button>
+    <button>👥 碳友圈</button>
+    <button>🗓️打卡</button>
+    <button>🤖我的</button>
+</nav>
+<script src="/Users/chenxinyu/Desktop/碳索鸭/sign.js"></script>
+</body>
+</html>
+
+
+

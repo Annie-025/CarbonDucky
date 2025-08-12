@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识竞答小游戏</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f8f9f8;
+        margin: 0;
+        text-align: center;
+    }
+    .header {
+        padding: 10px;
+        background: white;
+        font-size: 20px;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+        position: sticky;
+        top: 0;
+    }
+    .rank-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 1rem;
+        margin-right: 8px;
+        border: 2px solid #00B578;
+    }
+    .rank-list {
+        background: white;
+        margin: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .rank-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 8px 0;
+        font-size: 16px;
+    }
+    .question-box {
+        background: white;
+        margin: 10px;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .option {
+        display: block;
+        background: #e5f3e8;
+        margin: 8px auto;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 80%;
+        transition: background 0.3s;
+    }
+    .option:hover { background: #c6e6cc; }
+    .correct { background: #8fe49a !important; }
+    .wrong { background: #f39c9c !important; }
+</style>
+</head>
+<body>
+
+<div class="header">知识竞答</div>
+
+<div class="rank-list">
+    <div class="rank-item">🥇 
+        <img src="图片/头像.jpg" alt="头像" class="rank-avatar" >
+        碳索鸭1924
+        <span>400分</span></div>
+    <div class="rank-item">🥈 
+        <img src="图片/头像.jpg" alt="头像" class="rank-avatar" >
+        碳索鸭222 <span>340分</span></div>
+    <div class="rank-item">🥉 
+        <img src="图片/头像.jpg" alt="头像" class="rank-avatar" >
+        碳索鸭333 <span>200分</span></div>
+</div>
+
+<div class="question-box">
+    <div id="score">本轮积分：0</div>
+    <div id="qnum">当前题目：1/5</div>
+    <p id="question"></p>
+    <div id="options"></div>
+    <button id="next-btn" style="display:none;">下一题</button>
+</div>
+<script>
+let score = 0;
+let currentQuestionIndex = 0;
+
+const questions = [
+    { q: "以下属于大气污染来源的是（ ）", options: ["工业生产", "音乐欣赏", "种植花木", "农作物收割"], answer: 0 },
+    { q: "以下哪项是可再生能源？", options: ["太阳能", "煤炭", "石油", "天然气"], answer: 0 },
+    { q: "减少塑料污染的有效方式是？", options: ["多用一次性塑料袋", "使用可重复使用的袋子", "随意丢弃塑料瓶", "焚烧塑料"], answer: 1 },
+    { q: "地球日是每年的哪一天？", options: ["3月12日", "4月22日", "6月5日", "10月1日"], answer: 1 },
+    { q: "废旧电池属于哪类垃圾？", options: ["可回收物", "厨余垃圾", "有害垃圾", "其他垃圾"], answer: 2 }
+];
+
+function loadQuestion() {
+    if (currentQuestionIndex >= questions.length) {
+        alert("答题结束！总积分：" + score);
+        return;
+    }
+    document.getElementById("qnum").innerText = `当前题目：${currentQuestionIndex+1}/${questions.length}`;
+    document.getElementById("question").innerText = questions[currentQuestionIndex].q;
+
+    const optsDiv = document.getElementById("options");
+    optsDiv.innerHTML = "";
+    questions[currentQuestionIndex].options.forEach((opt, idx) => {
+        let btn = document.createElement("div");
+        btn.className = "option";
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(btn, idx === questions[currentQuestionIndex].answer);
+        optsDiv.appendChild(btn);
+    });
+}
+
+function checkAnswer(el, correct) {
+    if (correct) {
+        el.classList.add("correct");
+        score += 10;
+    } else {
+        el.classList.add("wrong");
+    }
+    document.getElementById("score").innerText = "本轮积分：" + score;
+    setTimeout(() => {
+        currentQuestionIndex++;
+        loadQuestion();
+    }, 800);
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
+
+

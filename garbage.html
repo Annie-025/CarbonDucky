@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>垃圾分类小游戏</title>
+<style>
+    .game-icon {
+    width: 100px;       /* 宽度 */
+    height: 100px;      /* 高度 */
+    object-fit: contain; /* 保持原比例缩放 */
+    border-radius: 8px;  /* 圆角，想要直角就删掉这行 */
+}
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #f8f9f8;
+        margin: 0;
+        text-align: center;
+    }
+    .header {
+        padding: 10px;
+        background: white;
+        font-size: 20px;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+    }
+    .rank-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 1rem;
+        margin-right: 8px;
+        border: 2px solid #00B578;
+    }
+    .rank-list {
+        background: white;
+        margin: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .rank-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 8px 0;
+    }
+    .trash-label {
+        display: inline-block;
+        background: #ddd;
+        padding: 6px 12px;
+        margin: 5px;
+        border-radius: 6px;
+        cursor: grab;
+    }
+    .bin-container {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+    .bin {
+        width: 80px;
+        height: 110px;
+        border-radius: 8px;
+        padding: 5px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+    .kitchen { background: green; }
+    .recycle { background: blue; }
+    .other { background: orange; }
+    .hazard { background: red; }
+</style>
+</head>
+<body>
+
+<div class="header">垃圾分类</div>
+
+<div class="rank-list">
+    <div class="rank-item">🥇 
+         <img src="图片/头像.jpg" alt="头像" class="rank-avatar" >
+         碳索鸭1924
+        <span>500分</span></div>
+    <div class="rank-item">🥈 
+            <img src="图片/头像.jpg" alt="头像" class="rank-avatar" >
+        碳索鸭222 <span>340分</span></div>
+    <div class="rank-item">🥉
+        <img src="图片/头像.jpg" alt="头像" class="rank-avatar">
+        碳索鸭333 <span>200分</span></div>
+</div>
+
+<div id="score">本轮积分：0</div>
+<div id="count">分类正确：0件</div>
+
+<div id="trash-items"></div>
+
+<div class="bin-container">
+    <div class="bin kitchen" data-type="kitchen">厨余垃圾
+        <img src="图片/绿.PNG" alt="垃圾桶" class="game-icon">
+    </div>
+    <div class="bin recycle" data-type="recycle">可回收物
+        <img src="图片/绿.PNG" alt="垃圾桶" class="game-icon">
+    </div>
+    <div class="bin other" data-type="other">其他垃圾
+        <img src="图片/橙.PNG" alt="垃圾桶" class="game-icon">
+    </div>
+
+    <div class="bin hazard" data-type="hazard">有害垃圾
+     <img src="图片/红.PNG" alt="垃圾桶" class="game-icon">
+    </div>
+       
+</div>
+
+<script>
+let score = 0;
+let correctCount = 0;
+
+const trashList = [
+    { name: "鱼骨", type: "kitchen" },
+    { name: "苹果核", type: "kitchen" },
+    { name: "易拉罐", type: "recycle" },
+    { name: "纸箱", type: "recycle" },
+    { name: "卫生纸", type: "other" },
+    { name: "塑料袋", type: "other" },
+    { name: "废电池", type: "hazard" },
+    { name: "过期药品", type: "hazard" }
+];
+
+function renderTrashItems() {
+    const container = document.getElementById("trash-items");
+    container.innerHTML = "";
+    trashList.forEach((item, index) => {
+        let div = document.createElement("div");
+        div.className = "trash-label";
+        div.draggable = true;
+        div.innerText = item.name;
+        div.dataset.type = item.type;
+        div.dataset.index = index;
+        div.addEventListener("dragstart", e => {
+            e.dataTransfer.setData("index", index);
+        });
+        container.appendChild(div);
+    });
+}
+
+document.querySelectorAll(".bin").forEach(bin => {
+    bin.addEventListener("dragover", e => e.preventDefault());
+    bin.addEventListener("drop", e => {
+        let index = e.dataTransfer.getData("index");
+        let item = trashList[index];
+        if (item && item.type === bin.dataset.type) {
+            score += 10;
+            correctCount++;
+            document.getElementById("score").innerText = "本轮积分：" + score;
+            document.getElementById("count").innerText = "分类正确：" + correctCount + "件";
+        }
+        trashList.splice(index, 1);
+        renderTrashItems();
+    });
+});
+
+renderTrashItems();
+</script>
+
+</body>
+</html>
