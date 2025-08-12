@@ -60,6 +60,17 @@
     .option:hover { background: #c6e6cc; }
     .correct { background: #8fe49a !important; }
     .wrong { background: #f39c9c !important; }
+    .invite-btn {
+        display: block;
+        margin: 20px auto;
+        background-color: #00B578;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        cursor: pointer;
+    }
 </style>
 </head>
 <body>
@@ -133,6 +144,7 @@ function checkAnswer(el, correct) {
 
 loadQuestion();
 </script>
+<button class="invite-btn">这题不会？问问好友>></button>
 
 </body>
 </html>
